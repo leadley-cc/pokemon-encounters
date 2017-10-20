@@ -1,0 +1,5 @@
+- Allow user to search by name?
+- Show random Pokemon and allow the user to catch them (up to 6)
+- Show information about caught pokemon
+- Show base stats in a highcharts bar graph
+- Try to find images for each as well

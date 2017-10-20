@@ -1,0 +1,25 @@
+div.grass-field {
+  width: 384px;
+  height: 384px;
+  background-image: url("https://cdn.bulbagarden.net/upload/3/33/RSE_Grass.png");
+  background-repeat: repeat;
+  background-size: 64px 64px;
+  image-rendering: pixelated;
+}
+
+img.pokemon-sprite {
+  width: 384px;
+  height: 384px;
+  image-rendering: pixelated;
+}
+
+img.pokeball {
+  width: 80px;
+  height: 80px;
+  padding: 152px;
+  image-rendering: pixelated;
+}
+
+.invisible {
+  display: none;
+}
