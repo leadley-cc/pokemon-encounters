@@ -9,10 +9,13 @@ var app = function () {
   var caughtPokemon = JSON.parse(localStorage.getItem("caughtPokemon")) || []
 
   // Grab DOM Objects we will need
-  var container = document.querySelector("div#random-pokemon")
-  var nameText = container.querySelector("p#pokemon-name")
-  var grassField = container.querySelector("div.grass-field")
-  var pokeballImg = container.querySelector("img.pokeball")
+  var encounterDiv = document.querySelector("div#random-pokemon")
+  var nameText = encounterDiv.querySelector("p#pokemon-name")
+  var grassField = encounterDiv.querySelector("div.grass-field")
+  var pokeballImg = encounterDiv.querySelector("img.pokeball")
+  var partyDiv = document.querySelector("div#party-view")
+
+  var inPartyView = false
 
   var requestPokemonData = function (id, shiny, callback) {
     var url = baseURL + "pokemon/" + id + "/"
@@ -44,20 +47,20 @@ var app = function () {
     grassField.classList.remove("invisible")
 
     var pokemonImg = document.querySelector("img.pokemon-sprite")
-    if (pokemonImg) container.removeChild(pokemonImg)
+    if (pokemonImg) encounterDiv.removeChild(pokemonImg)
 
     var id = randomInt(1, 387)
     var shiny = randomInt(0, 100) >= 90
 
     var render = function (pokemon) {
-      var grassField = container.querySelector("div.grass-field")
+      var grassField = encounterDiv.querySelector("div.grass-field")
       grassField.classList.add("invisible")
 
-      nameText.textContent = pokemon.name.toUpperCase()
+      nameText.textContent = "A wild "+ pokemon.name.toUpperCase() +" appeared!"
       if (pokemon.shiny) nameText.textContent += " (shiny!)"
 
       var img = getPokemonImg(pokemon)
-      container.appendChild(img)
+      encounterDiv.appendChild(img)
     }
 
     requestPokemonData(id, shiny, render)
@@ -65,12 +68,12 @@ var app = function () {
 
   var catchCurrentPokemon = function () {
     if (!currentPokemon) return
-    if (currentPokemon.length >= 6) return
+    if (caughtPokemon.length >= 6) return
 
     nameText.textContent = "Caught " + currentPokemon.name.toUpperCase() + "!"
 
     var pokemonImg = document.querySelector("img.pokemon-sprite")
-    if (pokemonImg) container.removeChild(pokemonImg)
+    if (pokemonImg) encounterDiv.removeChild(pokemonImg)
 
     pokeballImg.classList.remove("invisible")
 
@@ -83,6 +86,19 @@ var app = function () {
     localStorage.setItem("caughtPokemon", JSON.stringify(caughtPokemon))
     console.log("Caught " + currentPokemon.name)
     console.log(JSON.parse(localStorage.getItem("caughtPokemon")))
+    currentPokemon = null
+  }
+
+  var toggleDisplayParty = function () {
+    if (inPartyView) {
+      inPartyView = false
+      partyDiv.classList.add("invisible")
+      encounterDiv.classList.remove("invisible")
+    } else {
+      inPartyView = true
+      encounterDiv.classList.add("invisible")
+      partyDiv.classList.remove("invisible")
+    }
   }
 
   var searchButton = document.querySelector("button#search-for-pokemon")
@@ -90,6 +106,9 @@ var app = function () {
 
   var catchButton = document.querySelector("button#throw-pokeball")
   catchButton.addEventListener("click", catchCurrentPokemon)
+
+  var viewPartyButton = document.querySelector("button#view-party")
+  viewPartyButton.addEventListener("click", toggleDisplayParty)
 }
 
 window.addEventListener("DOMContentLoaded", app)
