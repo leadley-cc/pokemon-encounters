@@ -100,15 +100,46 @@ var app = function () {
   }
 
   var populatePartyView = function () {
+    var createStatsChart = function (pokemon, chartDiv) {
+      var stats = {}
+      pokemon.stats.forEach(
+        statObj => stats[statObj.stat.name] = statObj.base_stat
+      )
+      console.log(stats)
+      new Highcharts.Chart({
+        chart: { type: "bar", renderTo: chartDiv, width: 192, height: 192 },
+        legend: { enabled: false },
+        title: { text: pokemon.name.toUpperCase() },
+        series: [{
+          name: pokemon.name.toUpperCase(),
+          color: "tomato",
+          data: [
+            stats["hp"], stats["attack"], stats["defense"], stats["special-attack"], stats["special-defense"], stats["speed"]
+          ]
+        }],
+        xAxis: {
+          categories: [
+            "HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed"
+          ]
+        },
+        yAxis: { title: { text: null } }
+      })
+    }
+
     var renderPokemonInfo = function (pokemon) {
       var pkmnInfoDiv = document.createElement("div")
       pkmnInfoDiv.classList.add("party-pokemon-info")
       var pokemonImg = getPokemonImg(pokemon)
       pkmnInfoDiv.appendChild(pokemonImg)
+
+      var chartDiv = document.createElement("div")
+      createStatsChart(pokemon, chartDiv)
+      pkmnInfoDiv.appendChild(chartDiv)
+
       partyDiv.appendChild(pkmnInfoDiv)
     }
 
-    caughtPokemon.forEach(function (savedPkmn) {
+    caughtPokemon.forEach((savedPkmn) => {
       requestPokemonData(savedPkmn.id, savedPkmn.shiny, renderPokemonInfo)
     })
   }
