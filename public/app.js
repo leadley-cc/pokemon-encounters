@@ -41,9 +41,7 @@ var app = function () {
 
   var displayRandomPokemon = function () {
     nameText.textContent = "Searching for Pokémon..."
-    if (!pokeballImg.classList.contains("invisible")) {
-      pokeballImg.classList.add("invisible")
-    }
+    pokeballImg.classList.add("invisible")
     grassField.classList.remove("invisible")
 
     var pokemonImg = document.querySelector("img.pokemon-sprite")
@@ -101,11 +99,27 @@ var app = function () {
     }
   }
 
+  var populatePartyView = function () {
+    var renderPokemonInfo = function (pokemon) {
+      var pkmnInfoDiv = document.createElement("div")
+      pkmnInfoDiv.classList.add("party-pokemon-info")
+      var pokemonImg = getPokemonImg(pokemon)
+      pkmnInfoDiv.appendChild(pokemonImg)
+      partyDiv.appendChild(pkmnInfoDiv)
+    }
+
+    caughtPokemon.forEach(function (savedPkmn) {
+      requestPokemonData(savedPkmn.id, savedPkmn.shiny, renderPokemonInfo)
+    })
+  }
+
   var searchButton = document.querySelector("button#search-for-pokemon")
   searchButton.addEventListener("click", displayRandomPokemon)
 
   var catchButton = document.querySelector("button#throw-pokeball")
   catchButton.addEventListener("click", catchCurrentPokemon)
+
+  populatePartyView()
 
   var viewPartyButton = document.querySelector("button#view-party")
   viewPartyButton.addEventListener("click", toggleDisplayParty)

@@ -7,9 +7,23 @@ div.grass-field {
   image-rendering: pixelated;
 }
 
-img.pokemon-sprite {
+div.random-pokemon img.pokemon-sprite {
   width: 384px;
   height: 384px;
+  image-rendering: pixelated;
+}
+
+div.party-pokemon-info {
+  width: 192px;
+  margin: 10px;
+  border: 1px solid black;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+div.party-pokemon-info img.pokemon-sprite {
+  width: 192px;
+  height: 192px;
   image-rendering: pixelated;
 }
 
