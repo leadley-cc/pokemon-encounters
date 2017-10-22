@@ -1,3 +1,9 @@
+body {
+  margin: 10px;
+  text-align: center;
+  font-family: "Lucida Grande"
+}
+
 div.grass-field {
   width: 384px;
   height: 384px;
@@ -5,19 +11,22 @@ div.grass-field {
   background-repeat: repeat;
   background-size: 64px 64px;
   image-rendering: pixelated;
+  display: inline-block;
 }
 
-div.random-pokemon img.pokemon-sprite {
+div#random-pokemon img.pokemon-sprite {
   width: 384px;
   height: 384px;
   image-rendering: pixelated;
 }
 
 div.party-pokemon-info {
-  width: 192px;
+  text-align: center;
+  width: 210px;
   margin: 10px;
   border: 1px solid black;
   border-radius: 5px;
+  padding-bottom: 10px;
   display: inline-block;
 }
 
@@ -25,6 +34,10 @@ div.party-pokemon-info img.pokemon-sprite {
   width: 192px;
   height: 192px;
   image-rendering: pixelated;
+}
+
+div.party-pokemon-info p, div.party-pokemon-info h3 {
+  margin: 0;
 }
 
 img.pokeball {
@@ -35,5 +48,5 @@ img.pokeball {
 }
 
 .invisible {
-  display: none;
+  display: none !important;
 }

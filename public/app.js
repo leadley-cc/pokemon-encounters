@@ -44,7 +44,7 @@ var app = function () {
     pokeballImg.classList.add("invisible")
     grassField.classList.remove("invisible")
 
-    var pokemonImg = document.querySelector("img.pokemon-sprite")
+    var pokemonImg = encounterDiv.querySelector("img.pokemon-sprite")
     if (pokemonImg) encounterDiv.removeChild(pokemonImg)
 
     var id = randomInt(1, 387)
@@ -64,27 +64,40 @@ var app = function () {
     requestPokemonData(id, shiny, render)
   }
 
+  var StoragePokemon = function (apiPokemon) {
+    this.id = apiPokemon.id
+    this.name = apiPokemon.name
+    this.shiny = apiPokemon.shiny
+  }
+
   var catchCurrentPokemon = function () {
     if (!currentPokemon) return
     if (caughtPokemon.length >= 6) return
 
     nameText.textContent = "Caught " + currentPokemon.name.toUpperCase() + "!"
 
-    var pokemonImg = document.querySelector("img.pokemon-sprite")
+    var pokemonImg = encounterDiv.querySelector("img.pokemon-sprite")
     if (pokemonImg) encounterDiv.removeChild(pokemonImg)
 
     pokeballImg.classList.remove("invisible")
 
-    var pokemonToStore = {
-      id: currentPokemon.id,
-      name: currentPokemon.name,
-      shiny: currentPokemon.shiny
-    }
-    caughtPokemon.push(pokemonToStore)
+    caughtPokemon.push(new StoragePokemon(currentPokemon))
     localStorage.setItem("caughtPokemon", JSON.stringify(caughtPokemon))
-    console.log("Caught " + currentPokemon.name)
-    console.log(JSON.parse(localStorage.getItem("caughtPokemon")))
+    // console.log("Caught " + currentPokemon.name)
+    // console.log(JSON.parse(localStorage.getItem("caughtPokemon")))
+    renderPokemonInfo(currentPokemon)
     currentPokemon = null
+  }
+
+  var releasePokemon = function (pokemonToRelease) {
+    var index = caughtPokemon.findIndex( pokemon =>
+      pokemon.id === pokemonToRelease.id && pokemon.shiny === pokemonToRelease.shiny
+    )
+    if (index !== -1) {
+      caughtPokemon.splice(index, 1)
+      localStorage.setItem("caughtPokemon", JSON.stringify(caughtPokemon))
+    }
+    console.log(caughtPokemon)
   }
 
   var toggleDisplayParty = function () {
@@ -99,46 +112,73 @@ var app = function () {
     }
   }
 
+  var createStatsChart = function (pokemon, chartDiv) {
+    var stats = {}
+    pokemon.stats.forEach(
+      statObj => stats[statObj.stat.name] = statObj.base_stat
+    )
+    console.log(stats)
+    new Highcharts.Chart({
+      chart: { type: "bar", renderTo: chartDiv, width: 210, height: 230 },
+      legend: { enabled: false },
+      title: { text: null },
+      series: [{
+        name: pokemon.name.toUpperCase(),
+        color: "tomato",
+        data: [
+          stats["hp"], stats["attack"], stats["defense"], stats["special-attack"], stats["special-defense"], stats["speed"]
+        ]
+      }],
+      xAxis: {
+        categories: [
+          "HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed"
+        ]
+      },
+      yAxis: { title: { text: null }, max: 150, tickAmount: 4 }
+    })
+  }
+
+  var getPokemonInfoPara = function (pokemon) {
+    var typeInfo = () => {
+      if (pokemon.types.length == 2) {
+        return pokemon.types[1].type.name + "/" + pokemon.types[0].type.name
+      } else {
+        return pokemon.types[0].type.name
+      }
+    }
+
+    var infoPara = document.createElement("p")
+    infoPara.innerHTML =
+      "<h3>" + pokemon.name.toUpperCase() + "</h3>\n" +
+      typeInfo().toUpperCase()
+    return infoPara
+  }
+
+  var renderPokemonInfo = function (pokemon) {
+    var pkmnInfoDiv = document.createElement("div")
+    pkmnInfoDiv.classList.add("party-pokemon-info")
+    var pokemonImg = getPokemonImg(pokemon)
+    pkmnInfoDiv.appendChild(pokemonImg)
+
+    var infoPara = getPokemonInfoPara(pokemon)
+    pkmnInfoDiv.appendChild(infoPara)
+
+    var chartDiv = document.createElement("div")
+    createStatsChart(pokemon, chartDiv)
+    pkmnInfoDiv.appendChild(chartDiv)
+
+    var releaseButton = document.createElement("button")
+    releaseButton.textContent = "Release " + pokemon.name.toUpperCase()
+    releaseButton.addEventListener("click", () => {
+      pkmnInfoDiv.classList.add("invisible")
+      releasePokemon(pokemon)
+    })
+    pkmnInfoDiv.appendChild(releaseButton)
+
+    partyDiv.appendChild(pkmnInfoDiv)
+  }
+
   var populatePartyView = function () {
-    var createStatsChart = function (pokemon, chartDiv) {
-      var stats = {}
-      pokemon.stats.forEach(
-        statObj => stats[statObj.stat.name] = statObj.base_stat
-      )
-      console.log(stats)
-      new Highcharts.Chart({
-        chart: { type: "bar", renderTo: chartDiv, width: 192, height: 192 },
-        legend: { enabled: false },
-        title: { text: pokemon.name.toUpperCase() },
-        series: [{
-          name: pokemon.name.toUpperCase(),
-          color: "tomato",
-          data: [
-            stats["hp"], stats["attack"], stats["defense"], stats["special-attack"], stats["special-defense"], stats["speed"]
-          ]
-        }],
-        xAxis: {
-          categories: [
-            "HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed"
-          ]
-        },
-        yAxis: { title: { text: null } }
-      })
-    }
-
-    var renderPokemonInfo = function (pokemon) {
-      var pkmnInfoDiv = document.createElement("div")
-      pkmnInfoDiv.classList.add("party-pokemon-info")
-      var pokemonImg = getPokemonImg(pokemon)
-      pkmnInfoDiv.appendChild(pokemonImg)
-
-      var chartDiv = document.createElement("div")
-      createStatsChart(pokemon, chartDiv)
-      pkmnInfoDiv.appendChild(chartDiv)
-
-      partyDiv.appendChild(pkmnInfoDiv)
-    }
-
     caughtPokemon.forEach((savedPkmn) => {
       requestPokemonData(savedPkmn.id, savedPkmn.shiny, renderPokemonInfo)
     })
@@ -150,10 +190,10 @@ var app = function () {
   var catchButton = document.querySelector("button#throw-pokeball")
   catchButton.addEventListener("click", catchCurrentPokemon)
 
-  populatePartyView()
-
   var viewPartyButton = document.querySelector("button#view-party")
   viewPartyButton.addEventListener("click", toggleDisplayParty)
+
+  populatePartyView()
 }
 
 window.addEventListener("DOMContentLoaded", app)
